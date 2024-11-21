@@ -1,5 +1,19 @@
-<h1>Inventario Restaurante Reyes </h1>
+{%extends 'base.html'%}
 
-{% for producto in producto%}
-    <li>{{producto.nombre}}</li>
-{% endfor %}
+{%block content%}
+<h1>Inventario Restaurante Reyes </h1>
+<div class="row row-cols-1 row-cols-md-4 g-4">
+    {% for producto in producto%}
+    <div class="col mb-4 ">
+        <div class="card h-100">
+            <img src="{{producto.imagen}}" class="card-img-top fixed-size-img"  alt="...">
+            <div class="card-body">
+                <h5 class="card-title">{{producto.nombre}}</h5>
+                <p class="card-text">Stock: {{producto.cantidad}}</p>
+                <a href="#" class="btn btn-primary">Editar cantidad</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{%endblock%}
