@@ -3,33 +3,52 @@
 <div class="container mt-4">
     <h4 id="current-date" class="text-muted mb-4"></h4>
     <h5 class="mb-3">Inventario de productos</h5>
-    <div class="row row-cols-1 row-cols-md-4 g-4">
-        {% for producto in producto%}
-        <div class="col">
-            <div id="card-{{ producto.id }}" class="card h-100 {% if producto.cantidad <= 5 %}border-danger{% else %}border-secondary{% endif %}">
-                <img src="{{producto.imagen}}" class="card-img-top fixed-size-img"  alt="{{producto.nombre}}">
-                <div class="card-body d-flex flex-column">
-                    <h5 class="card-title">{{producto.nombre}}</h5>
-                    <p id="stock-{{producto.id}}" class="card-text {% if producto.cantidad <= 5 %}text-danger{% endif %}">
-                        Stock: <span id="cantidad-{{ producto.id }}">{{ producto.cantidad }}</span>
-                    </p>
-                    <div class="mt-auto">
-                        <button class="btn btn-primary w-100" onclick="toggleEdit({{producto.id}})">Editar cantidad</button>
-                        <div id="edit-section-{{ producto.id}}" class="edit-section mt-2" style="display: none;">
-                            <div class="input-group mb-3">
-                                <button class="btn btn-outline-secondary" type="button" onclick="updateCantidad({{ producto.id }}, -1)">-</button>
-                                <input typye="text" class="form-control text-center" id="input-cantidad-{{ producto.id }}" value="{{ producto.cantidad }}" readonly>
-                                <button class="btn btn-outline-secondary" type="button" onclick="updateCantidad({{ producto.id }}, 1)">+</button>
+    <div class="row">
+        <div class="col-md-9">
+            <div class="row row-cols-1 row-cols-md-4 g-4">
+                {% for producto in producto%}
+                <div class="col">
+                    <div id="card-{{ producto.id }}" class="card h-100 {% if producto.cantidad <= 5 %}border-danger{% else %}border-secondary{% endif %}">
+                        <img src="{{producto.imagen}}" class="card-img-top fixed-size-img"  alt="{{producto.nombre}}">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">{{producto.nombre}}</h5>
+                            <p id="stock-{{producto.id}}" class="card-text {% if producto.cantidad <= 5 %}text-danger{% endif %}">
+                                Stock: <span id="cantidad-{{ producto.id }}">{{ producto.cantidad }}</span>
+                            </p>
+                            <div class="mt-auto">
+                                <button class="btn btn-primary w-100" onclick="toggleEdit({{producto.id}})">Editar cantidad</button>
+                                <div id="edit-section-{{ producto.id}}" class="edit-section mt-2" style="display: none;">
+                                    <div class="input-group mb-3">
+                                        <button class="btn btn-outline-secondary" type="button" onclick="updateCantidad({{ producto.id }}, -1)">-</button>
+                                        <input typye="text" class="form-control text-center" id="input-cantidad-{{ producto.id }}" value="{{ producto.cantidad }}" readonly>
+                                        <button class="btn btn-outline-secondary" type="button" onclick="updateCantidad({{ producto.id }}, 1)">+</button>
+                                    </div>
+                                    <button class="btn btn-success w-100" onclick="guardarCantidad({{ producto.id }}, '{{ producto.nombre }}')">Guardar cambios</button>
+                                </div>
                             </div>
-                            <button class="btn btn-success w-100" onclick="guardarCantidad({{ producto.id }})">Guardar cambios</button>
                         </div>
                     </div>
                 </div>
+                {% endfor %}
             </div>
         </div>
-        {% endfor %}
+        <div class="col-md-3">
+            <aside>
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Historial de cambios</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul id="historial-cambios" class="list-group">
+                            <!-- Los cambios se agregarán aquí -->
+                        </ul>
+                    </div>
+                </div>
+            </aside>
+        </div>
     </div>
 </div>
+
 <script>
     function toggleEdit(productoId){
         var editSection = document.getElementById('edit-section-' + productoId);
@@ -51,7 +70,7 @@
         }
     }
 
-    function guardarCantidad(productoId){
+    function guardarCantidad(productoId, productoNombre){
         var nuevaCantidad = document.getElementById('input-cantidad-' + productoId).value;
         fetch(`/actualizar-cantidad/${productoId}/`, {
             method: 'POST',
@@ -78,6 +97,11 @@
                 card.classList.add('border-secondary');
                 stockText.classList.remove('text-danger');
             }
+            var historial = document.getElementById('historial-cambios');
+            var listItem = document.createElement('li');
+            listItem.className = 'list-group-item';
+            listItem.innerText = `Producto: ${productoNombre} Nueva cantidad: ${nuevaCantidad}, Fecha: ${new Date().toLocaleString()}`;
+            historial.appendChild(listItem);
         }else{
             alert('Error al actualizar la cantidad');
         }
